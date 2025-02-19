@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카페 주문 시스템</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 20px auto; text-align: center; }
+        .menu-item { border: 1px solid #ddd; padding: 10px; margin: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .menu-item label { margin-left: 10px; }
+        #orders { margin-top: 20px; border-top: 2px solid #000; padding-top: 10px; text-align: left; }
+        button { padding: 8px 12px; cursor: pointer; }
+        #reset-btn { background-color: red; color: white; }
+        .option-input { width: 150px; margin-left: 10px; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <h1>카페 주문 시스템</h1>
+
+    <h2>메뉴</h2>
+    <div id="menu-list"></div>
+
+    <div id="orders">
+        <div class="order-header">
+            <h2>주문 내역</h2>
+            <button id="reset-btn" onclick="resetData()">리셋</button>
+        </div>
+        <ul id="order-list"></ul>
+    </div>
+
+    <script>
+        function resetData() {
+            if (confirm("모든 주문 내역을 초기화하시겠습니까?")) {
+                localStorage.removeItem("orders");
+                document.getElementById("order-list").innerHTML = "";
+                alert("모든 주문이 초기화되었습니다.");
+            }
+        }
+
+        const menu = [
+            { name: "아메리카노" },
+            { name: "카페라떼" },
+            { name: "바닐라라떼" }
+        ];
+
+        function loadMenu() {
+            const menuList = document.getElementById("menu-list");
+            menuList.innerHTML = ""; // 기존 메뉴 초기화
+
+            menu.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "menu-item";
+
+                const title = document.createElement("span");
+                title.textContent = item.name;
+                div.appendChild(title);
+
+                // HOT / COLD 선택
+                const hotLabel = document.createElement("label");
+                const hotInput = document.createElement("input");
+                hotInput.type = "radio";
+                hotInput.name = `temp-${item.name}`;
+                hotInput.value = "HOT";
+                hotInput.checked = true;
+                hotLabel.appendChild(hotInput);
+                hotLabel.appendChild(document.createTextNode(" HOT"));
+
+                const coldLabel = document.createElement("label");
+                const coldInput = document.createElement("input");
+                coldInput.type = "radio";
+                coldInput.name = `temp-${item.name}`;
+                coldInput.value = "COLD";
+                coldLabel.appendChild(coldInput);
+                coldLabel.appendChild(document.createTextNode(" COLD"));
+
+                div.appendChild(hotLabel);
+                div.appendChild(coldLabel);
+
+                // 옵션 입력칸
+                const optionInput = document.createElement("input");
+                optionInput.type = "text";
+                optionInput.placeholder = "추가 옵션 입력";
+                optionInput.className = "option-input";
+                optionInput.id = `option-${item.name}`;
+                div.appendChild(optionInput);
+
+                // 주문 버튼
+                const orderButton = document.createElement("button");
+                orderButton.textContent = "주문";
+                orderButton.onclick = () => placeOrder(item.name);
+                div.appendChild(orderButton);
+
+                menuList.appendChild(div);
+            });
+        }
+
+        function placeOrder(name) {
+            const temp = document.querySelector(`input[name="temp-${name}"]:checked`).value;
+            const option = document.getElementById(`option-${name}`).value.trim() || "옵션 없음";
+
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+            // 주문 내역에서 동일한 항목과 합산
+            let existingOrderItem = orders.find(order => 
+                order.name === name &&
+                order.temp === temp &&
+                order.option === option
+            );
+
+            if (existingOrderItem) {
+                existingOrderItem.count++;
+            } else {
+                orders.push({ name, temp, option, count: 1 });
+            }
+
+            localStorage.setItem("orders", JSON.stringify(orders));
+
+            alert("주문이 완료되었습니다!");
+            loadOrders();
+        }
+
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem("orders")) || [];
+            const orderList = document.getElementById("order-list");
+            orderList.innerHTML = "";
+
+            orders.forEach(order => {
+                const li = document.createElement("li");
+                li.textContent = `${order.name} (${order.temp}) - 옵션: ${order.option} x${order.count}`;
+                orderList.appendChild(li);
+            });
+        }
+
+        // 페이지 로드 시 메뉴 및 주문 내역 불러오기
+        document.addEventListener("DOMContentLoaded", () => {
+            loadMenu();
+            loadOrders();
+        });
+    </script>
+
+</body>
+</html>
