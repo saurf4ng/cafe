@@ -129,25 +129,38 @@
                 title.textContent = item.name;
                 div.appendChild(title);
 
-                const hotLabel = document.createElement("label");
-                const hotInput = document.createElement("input");
-                hotInput.type = "radio";
-                hotInput.name = `temp-${item.name}`;
-                hotInput.value = "HOT";
-                hotInput.checked = true;
-                hotLabel.appendChild(hotInput);
-                hotLabel.appendChild(document.createTextNode(" HOT"));
-
-                const coldLabel = document.createElement("label");
-                const coldInput = document.createElement("input");
-                coldInput.type = "radio";
-                coldInput.name = `temp-${item.name}`;
-                coldInput.value = "COLD";
-                coldLabel.appendChild(coldInput);
-                coldLabel.appendChild(document.createTextNode(" COLD"));
-
-                div.appendChild(hotLabel);
-                div.appendChild(coldLabel);
+                if (item.category === "주스" || item.category === "스무디" || item.category === "에이드" || item.category === "쉐이크") {
+                    const coldLabel = document.createElement("label");
+                    const coldInput = document.createElement("input");
+                    coldInput.type = "radio";
+                    coldInput.name = `temp-${item.name}`;
+                    coldInput.value = "COLD";
+                    coldInput.checked = true;
+                    coldInput.disabled = true;
+                    coldLabel.appendChild(coldInput);
+                    coldLabel.appendChild(document.createTextNode(" COLD"));
+                    div.appendChild(coldLabel);
+                } else {
+                    const hotLabel = document.createElement("label");
+                    const hotInput = document.createElement("input");
+                    hotInput.type = "radio";
+                    hotInput.name = `temp-${item.name}`;
+                    hotInput.value = "HOT";
+                    hotInput.checked = true;
+                    hotLabel.appendChild(hotInput);
+                    hotLabel.appendChild(document.createTextNode(" HOT"));
+                    
+                    const coldLabel = document.createElement("label");
+                    const coldInput = document.createElement("input");
+                    coldInput.type = "radio";
+                    coldInput.name = `temp-${item.name}`;
+                    coldInput.value = "COLD";
+                    coldLabel.appendChild(coldInput);
+                    coldLabel.appendChild(document.createTextNode(" COLD"));
+                    
+                    div.appendChild(hotLabel);
+                    div.appendChild(coldLabel);
+                }
 
                 const optionInput = document.createElement("input");
                 optionInput.type = "text";
