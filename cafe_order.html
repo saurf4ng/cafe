@@ -11,14 +11,16 @@
         #orders { margin-top: 20px; border-top: 2px solid #000; padding-top: 10px; text-align: left; }
         button { padding: 8px 12px; cursor: pointer; }
         #reset-btn { background-color: red; color: white; }
+        #clear-btn { background-color: darkblue; color: white; margin-top: 10px; }
         .option-input { width: 150px; margin-left: 10px; }
         .order-header { display: flex; justify-content: space-between; align-items: center; }
+        .category-title { font-size: 1.2em; font-weight: bold; margin-top: 15px; text-align: left; }
     </style>
 </head>
 <body>
 
     <h1>카페 주문 시스템</h1>
-    
+
     <h2>카테고리 선택</h2>
     <select id="category-select" style="font-size: 1.2em; padding: 10px; width: 250px;" onchange="loadMenu()">
         <option value="">카테고리를 선택하세요</option>
@@ -36,20 +38,15 @@
 
     <div id="orders">
         <div class="order-header">
-            <h2>주문 내역 (내선: 2058)</h2>
-            <button id="reset-btn" onclick="resetData()">리셋</button>
+            <h2>주문 내역</h2>
+            <button id="reset-btn" onclick="loadOrders()">새로고침</button>
+            <button id="clear-btn" onclick="clearOrders()">전체삭제</button>
         </div>
         <ul id="order-list"></ul>
     </div>
 
     <script>
-        function resetData() {
-            if (confirm("모든 주문 내역을 초기화하시겠습니까?")) {
-                localStorage.removeItem("orders");
-                document.getElementById("order-list").innerHTML = "";
-                alert("모든 주문이 초기화되었습니다.");
-            }
-        }
+        const API_URL = "https://script.google.com/macros/s/AKfycbwjD6lLFRlIjSfi-IMPn6tGRdEuUH6K1dxbkUs2FMDH6WLthczI6x6wwetGeJ9P-sh8mQ/exec";
 
         const menu = [
             { category: "커피", name: "에스프레소" },
@@ -118,13 +115,13 @@
         ];
 
         function loadMenu() {
-            const selectedCategory = document.getElementById("category-select").value;
             const menuList = document.getElementById("menu-list");
             menuList.innerHTML = "";
+            const selectedCategory = document.getElementById("category-select").value;
 
-            if (!selectedCategory) return;
+            menu.forEach(item => {
+                if (selectedCategory && item.category !== selectedCategory) return;
 
-            menu.filter(item => item.category === selectedCategory).forEach(item => {
                 const div = document.createElement("div");
                 div.className = "menu-item";
 
@@ -132,7 +129,6 @@
                 title.textContent = item.name;
                 div.appendChild(title);
 
-                // HOT / COLD 선택
                 const hotLabel = document.createElement("label");
                 const hotInput = document.createElement("input");
                 hotInput.type = "radio";
@@ -153,7 +149,6 @@
                 div.appendChild(hotLabel);
                 div.appendChild(coldLabel);
 
-                // 추가 옵션 입력
                 const optionInput = document.createElement("input");
                 optionInput.type = "text";
                 optionInput.placeholder = "추가 옵션 입력";
@@ -161,57 +156,84 @@
                 optionInput.id = `option-${item.name}`;
                 div.appendChild(optionInput);
 
-                // 주문 버튼
                 const orderButton = document.createElement("button");
                 orderButton.textContent = "주문";
-                orderButton.onclick = () => placeOrder(item.name);
+                orderButton.onclick = async () => {
+                    await placeOrder(item.name);
+                    await loadOrders();
+                };
                 div.appendChild(orderButton);
 
                 menuList.appendChild(div);
             });
         }
 
-        function placeOrder(name) {
-            const temp = document.querySelector(`input[name="temp-${name}"]:checked`).value;
-            const option = document.getElementById(`option-${name}`).value.trim() || "옵션 없음";
+        async function placeOrder(menu) {
+            const temp = document.querySelector(`input[name="temp-${menu}"]:checked`).value;
+            const etc = document.getElementById(`option-${menu}`).value.trim() || "없음";
 
-            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            try {
+                console.log("📡 Sending request to API:", { menu, temp, etc });
 
-            // 주문 내역에서 동일한 항목과 합산
-            let existingOrderItem = orders.find(order => 
-                order.name === name &&
-                order.temp === temp &&
-                order.option === option
-            );
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain" }, // ✅ OPTIONS 요청 방지를 위해 text/plain 사용
+                    body: JSON.stringify({ menu, temp, etc })
+                });
 
-            if (existingOrderItem) {
-                existingOrderItem.count++;
-            } else {
-                orders.push({ name, temp, option, count: 1 });
+                const text = await response.text();
+                console.log("🛰️ Server response:", text);
+
+                const result = JSON.parse(text);
+                if (result.status !== "success") {
+                    throw new Error(result.message);
+                }
+
+                alert("✅ 주문 완료!");
+                await loadOrders();
+            } catch (error) {
+                alert("❌ 주문 실패: " + error);
+                console.error("🚨 주문 오류:", error);
             }
-
-            localStorage.setItem("orders", JSON.stringify(orders));
-
-            alert("주문이 완료되었습니다!");
-            loadOrders();
         }
 
-        function loadOrders() {
-            const orders = JSON.parse(localStorage.getItem("orders")) || [];
-            const orderList = document.getElementById("order-list");
-            orderList.innerHTML = "";
+        async function loadOrders() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("서버 오류");
+                const orders = await response.json();
+                document.getElementById("order-list").innerHTML = orders.map(o => 
+                    `<li>${o.menu} (${o.temp}) - 옵션: ${o.etc} x${o.count}</li>`
+                ).join("");
+            } catch (error) {
+                alert("주문 내역을 불러오지 못했습니다: " + error);
+            }
+        }
+        
 
-            orders.forEach(order => {
-                const li = document.createElement("li");
-                li.textContent = `${order.name} (${order.temp}) - 옵션: ${order.option} x${order.count}`;
-                orderList.appendChild(li);
-            });
-        }	
-
+        async function clearOrders() {
+            try {
+                console.log("🗑 Sending clear request to API...");
+                const response = await fetch(API_URL + "?action=clear", { method: "GET" });
+                const result = await response.json();
+                console.log("🛰️ Server response:", result);
+                if (result.status === "success") {
+                    alert("✅ 모든 주문이 삭제되었습니다!");
+                    loadOrders();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                alert("❌ 주문 삭제 실패: " + error);
+                console.error("🚨 삭제 오류:", error);
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
+            // loadMenu();
             loadOrders();
         });
     </script>
+
 </body>
 </html>
