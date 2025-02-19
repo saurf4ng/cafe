@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>카페 주문 시스템</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 20px auto; text-align: center; }
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; text-align: center; }
         .menu-item { border: 1px solid #ddd; padding: 10px; margin: 10px; display: flex; align-items: center; justify-content: space-between; }
         .menu-item label { margin-left: 10px; }
         #orders { margin-top: 20px; border-top: 2px solid #000; padding-top: 10px; text-align: left; }
@@ -18,6 +18,18 @@
 <body>
 
     <h1>카페 주문 시스템</h1>
+    
+    <h2>카테고리 선택</h2>
+    <select id="category-select" style="font-size: 1.2em; padding: 10px; width: 250px;" onchange="loadMenu()">
+        <option value="">카테고리를 선택하세요</option>
+        <option value="커피">커피</option>
+        <option value="주스">주스</option>
+        <option value="에이드">에이드</option>
+        <option value="라떼">라떼</option>
+        <option value="쉐이크">쉐이크</option>
+        <option value="스무디">스무디</option>
+        <option value="차">차</option>
+    </select>
 
     <h2>메뉴</h2>
     <div id="menu-list"></div>
@@ -40,16 +52,79 @@
         }
 
         const menu = [
-            { name: "아메리카노" },
-            { name: "카페라떼" },
-            { name: "바닐라라떼" }
+            { category: "커피", name: "에스프레소" },
+            { category: "커피", name: "아메리카노" },
+            { category: "커피", name: "카푸치노" },
+            { category: "커피", name: "카페라떼" },
+            { category: "커피", name: "카라멜라떼" },
+            { category: "커피", name: "바닐라라떼" },
+            { category: "커피", name: "모카라떼" },
+            { category: "커피", name: "연유라떼" },
+            { category: "커피", name: "솔티크림라떼" },
+            { category: "커피", name: "콜드브루" },
+            { category: "커피", name: "코드브루라떼" },
+
+            { category: "주스", name: "딸기주스" },
+            { category: "주스", name: "키위주스" },
+            { category: "주스", name: "바나나주스" },
+            { category: "주스", name: "망고주스" },
+            { category: "주스", name: "토마토주스" },
+            { category: "주스", name: "딸바주스" },
+            { category: "주스", name: "키바주스" },
+            { category: "주스", name: "착즙주스" },
+
+            { category: "에이드", name: "자몽에이드" },
+            { category: "에이드", name: "레몬에이드" },
+            { category: "에이드", name: "오렌지에이드" },
+            { category: "에이드", name: "블루베리에이드" },
+            { category: "에이드", name: "오몽에이드" },
+            { category: "에이드", name: "복숭아에이드" },
+
+            { category: "라떼", name: "초코라떼" },
+            { category: "라떼", name: "말차라떼" },
+            { category: "라떼", name: "홍차라떼" },
+            { category: "라떼", name: "고구마라떼" },
+            { category: "라떼", name: "진저라떼" },
+            { category: "라떼", name: "블루베리라떼" },
+            { category: "라떼", name: "초당옥수수라떼" },
+
+            { category: "쉐이크", name: "바닐라쉐이크" },
+            { category: "쉐이크", name: "딸기쉐이크" },
+            { category: "쉐이크", name: "자바칩프라페" },
+            { category: "쉐이크", name: "호두쉐이크" },
+            { category: "쉐이크", name: "죠리퐁쉐이크" },
+
+            { category: "스무디", name: "플레인요거트스무디" },
+            { category: "스무디", name: "딸기요거트스무디" },
+            { category: "스무디", name: "블루베리요거트스무디" },
+            { category: "스무디", name: "망고요거트스무디" },
+            { category: "스무디", name: "청포도요거트스무디" },
+            { category: "스무디", name: "화이트피치요거트스무디" },
+
+            { category: "차", name: "레몬차" },
+            { category: "차", name: "자몽차" },
+            { category: "차", name: "오렌지차" },
+            { category: "차", name: "유자차" },
+            { category: "차", name: "대추차" },
+            { category: "차", name: "생강차" },
+            { category: "차", name: "레몬진저티" },
+            { category: "차", name: "캐모마일" },
+            { category: "차", name: "히비스커스" },
+            { category: "차", name: "페퍼민트" },
+            { category: "차", name: "얼그레이" },
+            { category: "차", name: "설녹차" },
+            { category: "차", name: "복숭아티" }
+
         ];
 
         function loadMenu() {
+            const selectedCategory = document.getElementById("category-select").value;
             const menuList = document.getElementById("menu-list");
-            menuList.innerHTML = ""; // 기존 메뉴 초기화
+            menuList.innerHTML = "";
 
-            menu.forEach(item => {
+            if (!selectedCategory) return;
+
+            menu.filter(item => item.category === selectedCategory).forEach(item => {
                 const div = document.createElement("div");
                 div.className = "menu-item";
 
@@ -78,7 +153,7 @@
                 div.appendChild(hotLabel);
                 div.appendChild(coldLabel);
 
-                // 옵션 입력칸
+                // 추가 옵션 입력
                 const optionInput = document.createElement("input");
                 optionInput.type = "text";
                 optionInput.placeholder = "추가 옵션 입력";
@@ -131,14 +206,12 @@
                 li.textContent = `${order.name} (${order.temp}) - 옵션: ${order.option} x${order.count}`;
                 orderList.appendChild(li);
             });
-        }
+        }	
 
-        // 페이지 로드 시 메뉴 및 주문 내역 불러오기
+
         document.addEventListener("DOMContentLoaded", () => {
-            loadMenu();
             loadOrders();
         });
     </script>
-
 </body>
 </html>
