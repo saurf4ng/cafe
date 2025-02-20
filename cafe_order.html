@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카페 주문 시스템</title>
+    <title>카페 주문 시스템 (내선: 2058)</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; text-align: center; }
         .menu-item { border: 1px solid #ddd; padding: 10px; margin: 10px; display: flex; align-items: center; justify-content: space-between; }
@@ -20,6 +20,8 @@
 <body>
 
     <h1>카페 주문 시스템</h1>
+    <button id="random-order-btn" style="margin-bottom: 15px;" onclick="randomOrder()">랜덤 주문</button>
+
 
     <h2>카테고리 선택</h2>
     <select id="category-select" style="font-size: 1.2em; padding: 10px; width: 250px;" onchange="loadMenu()">
@@ -46,7 +48,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwjD6lLFRlIjSfi-IMPn6tGRdEuUH6K1dxbkUs2FMDH6WLthczI6x6wwetGeJ9P-sh8mQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyGEDXQziC3C06T1ith61N9_G8vYlC1W1hGIOK9nHUdmBg2svL0ngdvyRk_8bossbtpQg/exec";
 
         const menu = [
             { category: "커피", name: "에스프레소" },
@@ -216,13 +218,63 @@
                 if (!response.ok) throw new Error("서버 오류");
                 const orders = await response.json();
                 document.getElementById("order-list").innerHTML = orders.map(o => 
-                    `<li>${o.menu} (${o.temp}) - 옵션: ${o.etc} x${o.count}</li>`
+                    `<li>${o.menu} (${o.temp}) - 옵션: ${o.etc} x${o.count} 
+                    <button onclick="deleteOrder('${o.menu}', '${o.temp}', '${o.etc}')">삭제</button></li>`
                 ).join("");
             } catch (error) {
                 alert("주문 내역을 불러오지 못했습니다: " + error);
             }
         }
-        
+
+        async function deleteOrder(menu, temp, etc) {
+            if (!confirm(`"${menu} (${temp}) - ${etc}" 주문을 삭제할까요?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}?action=delete&menu=${encodeURIComponent(menu)}&temp=${encodeURIComponent(temp)}&etc=${encodeURIComponent(etc)}`);
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    alert("✅ 주문이 삭제되었습니다.");
+                    loadOrders();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                alert("❌ 삭제 실패: " + error);
+                console.error("🚨 삭제 오류:", error);
+            }
+        }
+
+        async function randomOrder() {
+            const randomItem = menu[Math.floor(Math.random() * menu.length)]; // 랜덤 메뉴 선택
+            const temp = (randomItem.category === "주스" || randomItem.category === "스무디" || randomItem.category === "에이드" || randomItem.category === "쉐이크") ? "COLD" : (Math.random() < 0.5 ? "HOT" : "COLD"); // 온도 선택
+            const etc = "랜덤 선택"; // 기본 옵션
+
+            try {
+                console.log(`🎲 랜덤 주문: ${randomItem.name} (${temp})`);
+                
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain" }, 
+                    body: JSON.stringify({ menu: randomItem.name, temp, etc })
+                });
+
+                const text = await response.text();
+                console.log("🛰️ Server response:", text);
+
+                const result = JSON.parse(text);
+                if (result.status !== "success") {
+                    throw new Error(result.message);
+                }
+
+                alert(`✅ 랜덤 주문 완료: ${randomItem.name} (${temp})`);
+                await loadOrders();
+            } catch (error) {
+                alert("❌ 랜덤 주문 실패: " + error);
+                console.error("🚨 랜덤 주문 오류:", error);
+            }
+        }
+
 
         async function clearOrders() {
             try {
