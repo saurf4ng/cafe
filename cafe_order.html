@@ -300,6 +300,22 @@
             }
         }
 
+        function clearOrdersDaily() {
+            try {
+                var sheet = SpreadsheetApp.openById("1XInOwqblvGadJQz1XljFEGILzNTQ6IVe0_Su2jnQ1gk").getActiveSheet();
+                var lastRow = sheet.getLastRow();
+                
+                if (lastRow > 1) { // 첫 번째 행(헤더)은 유지
+                  sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).clearContent();
+                }
+            
+                Logger.log("✅ 주문 내역이 자정에 자동 리셋되었습니다.");
+            } catch (error) {
+                Logger.log("❌ 주문 리셋 오류: " + error.toString());
+            }
+        }
+
+
         document.addEventListener("DOMContentLoaded", () => {
             // loadMenu();
             loadOrders();
