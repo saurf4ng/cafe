@@ -33,7 +33,8 @@
         <option value="쉐이크">쉐이크</option>
         <option value="스무디">스무디</option>
         <option value="차">차</option>
-        <option value="SPECIAL">SPECIAL</option>
+        <option value="병음료">병음료료</option>
+        <option value="시즌">시즌</option>
     </select>
 
     <h2>메뉴</h2>
@@ -54,45 +55,55 @@
         const menu = [
             { category: "커피", name: "에스프레소" },
             { category: "커피", name: "아메리카노" },
-            { category: "커피", name: "카푸치노" },
+            { category: "커피", name: "아메리카노(연하게)" },
+            { category: "커피", name: "아메리카노(진진하게)" },
+            { category: "커피", name: "카푸치노(HOT)" },
             { category: "커피", name: "카페라떼" },
             { category: "커피", name: "카라멜라떼" },
-            { category: "커피", name: "바닐라라떼" },
-            { category: "커피", name: "모카라떼" },
             { category: "커피", name: "연유라떼" },
+            { category: "커피", name: "모카라떼" },
+            { category: "커피", name: "바닐라빈라떼" },
             { category: "커피", name: "솔티크림라떼" },
-            { category: "커피", name: "콜드브루" },
-            { category: "커피", name: "콜드브루라떼" },
+            { category: "커피", name: "콜드브루(ICE)" },
+            { category: "커피", name: "콜드브루라떼(ICE)" },
+            { category: "커피", name: "동남아아보커피(ICE)" },
 
             { category: "주스", name: "딸기주스" },
             { category: "주스", name: "키위주스" },
             { category: "주스", name: "바나나주스" },
+            { category: "주스", name: "딸기바나나주스" },
+            { category: "주스", name: "키위바나나주스" },
             { category: "주스", name: "망고주스" },
             { category: "주스", name: "토마토주스" },
-            { category: "주스", name: "딸바주스" },
-            { category: "주스", name: "키바주스" },
-            { category: "주스", name: "착즙주스" },
+            { category: "주스", name: "아보나나주스" },
+            { category: "주스", name: "착즙주스(얼음컵O)" },
+            { category: "주스", name: "착즙주스(얼음컵X)" },
 
             { category: "에이드", name: "자몽에이드" },
             { category: "에이드", name: "레몬에이드" },
-            { category: "에이드", name: "오렌지에이드" },
-            { category: "에이드", name: "블루베리에이드" },
+            { category: "에이드", name: "오렌지에이드" },            
             { category: "에이드", name: "오몽에이드" },
             { category: "에이드", name: "복숭아에이드" },
 
-            { category: "라떼", name: "초코라떼" },
-            { category: "라떼", name: "말차라떼" },
-            { category: "라떼", name: "홍차라떼" },
-            { category: "라떼", name: "고구마라떼" },
+            { category: "라떼", name: "밀크초코라떼" },
+            { category: "라떼", name: "제주말차라떼" },
             { category: "라떼", name: "진저라떼" },
-            { category: "라떼", name: "블루베리라떼" },
-            { category: "라떼", name: "초당옥수수라떼" },
+            { category: "라떼", name: "고구마라떼" },
+            { category: "라떼", name: "미숫가루라떼" },
+            { category: "라떼", name: "얼그레이라떼" },
+            { category: "라떼", name: "딸기퐁당라떼(ICE)" },
 
-            { category: "쉐이크", name: "바닐라쉐이크" },
-            { category: "쉐이크", name: "딸기쉐이크" },
-            { category: "쉐이크", name: "자바칩프라페" },
-            { category: "쉐이크", name: "호두쉐이크" },
             { category: "쉐이크", name: "죠리퐁쉐이크" },
+            { category: "쉐이크", name: "초코프라페(오레오)" },
+            { category: "쉐이크", name: "초코프라페(딸기)" },
+            { category: "쉐이크", name: "초코프라페(리얼)" },
+            { category: "쉐이크", name: "바닐라밀크쉐이크" },
+            { category: "쉐이크", name: "딸기밀크쉐이크" },            
+            { category: "쉐이크", name: "호두쉐이크" },
+            { category: "쉐이크", name: "프로틴드링크(비타나나)" },
+            { category: "쉐이크", name: "프로틴드링크(베리베리)" },
+            { category: "쉐이크", name: "프로틴드링크(리얼초코)" },
+            
 
             { category: "스무디", name: "플레인요거트스무디" },
             { category: "스무디", name: "딸기요거트스무디" },
@@ -100,6 +111,7 @@
             { category: "스무디", name: "망고요거트스무디" },
             { category: "스무디", name: "청포도요거트스무디" },
             { category: "스무디", name: "화이트피치요거트스무디" },
+            { category: "스무디", name: "아보카도요거트스무디" },
 
             { category: "차", name: "레몬차" },
             { category: "차", name: "자몽차" },
@@ -112,13 +124,20 @@
             { category: "차", name: "히비스커스" },
             { category: "차", name: "페퍼민트" },
             { category: "차", name: "얼그레이" },
-            { category: "차", name: "설녹차" },
-            { category: "차", name: "복숭아티" },
+            { category: "차", name: "녹차" },
+            { category: "차", name: "통계피 얼그레이레몬티(HOT)" },
+            { category: "차", name: "오렌지히비스커스티(ICE)" },
+            { category: "차", name: "복숭아아이스티(ICE)" },
+            { category: "차", name: "석류콤부차" },
 
-            { category: "SPECIAL", name: "바밤바 막걸리" },
-            { category: "SPECIAL", name: "한라봉차" },
-            { category: "SPECIAL", name: "한라봉에이드" },
-            { category: "SPECIAL", name: "한라봉주스" }
+            { category: "병음료", name: "분다버그핑크자몽" },
+            { category: "병음료", name: "골든메달애프주스" },
+            { category: "병음료", name: "골든메달스파클링애플주스" },
+
+            
+            { category: "시즌", name: "한라봉차" },
+            { category: "시즌", name: "한라봉에이드" },
+            { category: "시즌", name: "한라봉주스" }
 
         ];
 
